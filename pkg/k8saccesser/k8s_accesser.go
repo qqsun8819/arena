@@ -28,7 +28,7 @@ import (
 	etversioned "github.com/kubeflow/arena/pkg/operators/et-operator/client/clientset/versioned"
 	cron_v1alpha1 "github.com/kubeflow/arena/pkg/operators/kubedl-operator/apis/apps/v1alpha1"
 	cronversioned "github.com/kubeflow/arena/pkg/operators/kubedl-operator/client/clientset/versioned"
-	"github.com/kubeflow/arena/pkg/operators/mpi-operator/apis/kubeflow/v1alpha1"
+	"github.com/kubeflow/arena/pkg/operators/mpi-operator/apis/kubeflow/v1alpha2"
 	mpiversioned "github.com/kubeflow/arena/pkg/operators/mpi-operator/client/clientset/versioned"
 	pytorch_v1 "github.com/kubeflow/arena/pkg/operators/pytorch-operator/apis/pytorch/v1"
 	pyversioned "github.com/kubeflow/arena/pkg/operators/pytorch-operator/client/clientset/versioned"
@@ -45,7 +45,7 @@ var once sync.Once
 
 func init() {
 	tfv1.AddToScheme(scheme.Scheme)
-	v1alpha1.AddToScheme(scheme.Scheme)
+	v1alpha2.AddToScheme(scheme.Scheme)
 	v1alpha12.AddToScheme(scheme.Scheme)
 	pytorch_v1.AddToScheme(scheme.Scheme)
 	spark_v1beta2.AddToScheme(scheme.Scheme)
@@ -418,9 +418,9 @@ func (k *k8sResourceAccesser) ListTensorflowJobs(tfjobClient *tfversioned.Client
 	return jobs, nil
 }
 
-func (k *k8sResourceAccesser) ListMPIJobs(mpijobClient *mpiversioned.Clientset, namespace string, labels string) ([]*v1alpha1.MPIJob, error) {
-	jobs := []*v1alpha1.MPIJob{}
-	jobList := &v1alpha1.MPIJobList{}
+func (k *k8sResourceAccesser) ListMPIJobs(mpijobClient *mpiversioned.Clientset, namespace string, labels string) ([]*v1alpha2.MPIJob, error) {
+	jobs := []*v1alpha2.MPIJob{}
+	jobList := &v1alpha2.MPIJobList{}
 	var err error
 	labelSelector, err := parseLabelSelector(labels)
 	if err != nil {
@@ -435,7 +435,7 @@ func (k *k8sResourceAccesser) ListMPIJobs(mpijobClient *mpiversioned.Clientset, 
 				LabelSelector: labelSelector,
 			})
 	} else {
-		jobList, err = mpijobClient.KubeflowV1alpha1().MPIJobs(namespace).List(metav1.ListOptions{
+		jobList, err = mpijobClient.KubeflowV1alpha2().MPIJobs(namespace).List(metav1.ListOptions{
 			LabelSelector: labelSelector.String(),
 		})
 	}
@@ -608,8 +608,8 @@ func (k *k8sResourceAccesser) GetTensorflowJob(tfjobClient *tfversioned.Clientse
 	return tfjob, nil
 }
 
-func (k *k8sResourceAccesser) GetMPIJob(mpijobClient *mpiversioned.Clientset, namespace string, name string) (*v1alpha1.MPIJob, error) {
-	mpijob := &v1alpha1.MPIJob{}
+func (k *k8sResourceAccesser) GetMPIJob(mpijobClient *mpiversioned.Clientset, namespace string, name string) (*v1alpha2.MPIJob, error) {
+	mpijob := &v1alpha2.MPIJob{}
 	var err error
 	if k.cacheEnabled {
 		err = k.cacheClient.Get(context.Background(), client.ObjectKey{Namespace: namespace, Name: name}, mpijob)
@@ -620,7 +620,7 @@ func (k *k8sResourceAccesser) GetMPIJob(mpijobClient *mpiversioned.Clientset, na
 			return nil, fmt.Errorf("failed to find mpijob %v from cache,reason: %v", name, err)
 		}
 	} else {
-		mpijob, err = mpijobClient.KubeflowV1alpha1().MPIJobs(namespace).Get(name, metav1.GetOptions{})
+		mpijob, err = mpijobClient.KubeflowV1alpha2().MPIJobs(namespace).Get(name, metav1.GetOptions{})
 		if err != nil {
 			if strings.Contains(err.Error(), fmt.Sprintf(`%v "%v" not found`, MPICRDName, name)) {
 				return nil, types.ErrTrainingJobNotFound

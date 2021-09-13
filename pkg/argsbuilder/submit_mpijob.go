@@ -93,6 +93,8 @@ func (s *SubmitMPIJobArgsBuilder) Build() error {
 	if err := s.setGPUTopologyReplica(); err != nil {
 		return err
 	}
+
+	s.args.Command = "mpirun --allow-run-as-root -np 2 -bind-to none -map-by slot -x NCCL_DEBUB=INFO -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib " + s.args.Command 
 	if err := s.check(); err != nil {
 		return err
 	}

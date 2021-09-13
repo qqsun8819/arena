@@ -36,7 +36,7 @@ func GenerateValueFile(values interface{}) (valueFileName string, err error) {
 	}
 
 	valueFileName = valueFile.Name()
-	log.Debugf("Save the values file %s", valueFileName)
+	log.Infof("Save the values file %s", valueFileName)
 
 	// 2. dump the object into the template file
 	err = toYaml(values, valueFile)
@@ -79,7 +79,7 @@ func GenerateHelmTemplate(name string, namespace string, valueFileName string, c
 
 	args = append(args, []string{chartName, ">", templateFileName}...)
 
-	log.Debugf("Exec bash -c %v", args)
+	log.Infof("Exec bash -c %v", args)
 
 	// return syscall.Exec(cmd, args, env)
 	// 5. execute the command

@@ -27,7 +27,9 @@ import (
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
 
+	log.SetLevel(log.DebugLevel)
 	if isPProfEnabled() {
 		cpuf, err := os.Create("/tmp/cpu_profile")
 		if err != nil {

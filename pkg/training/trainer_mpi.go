@@ -32,13 +32,13 @@ import (
 
 	"time"
 
-	v1alpha1 "github.com/kubeflow/arena/pkg/operators/mpi-operator/apis/kubeflow/v1alpha1"
+	v1alpha2 "github.com/kubeflow/arena/pkg/operators/mpi-operator/apis/kubeflow/v1alpha2"
 )
 
 // MPI Job Information
 type MPIJob struct {
 	*BasicJobInfo
-	mpijob       *v1alpha1.MPIJob
+	mpijob       *v1alpha2.MPIJob
 	chiefjob     *batchv1.Job
 	pods         []*v1.Pod // all the pods including statefulset and job
 	chiefPod     *v1.Pod   // the chief pod
@@ -355,7 +355,7 @@ func (tt *MPIJobTrainer) isChiefPod(item *v1.Pod) bool {
 	return true
 }
 
-func (tt *MPIJobTrainer) isMPIJob(name, ns string, item v1alpha1.MPIJob) bool {
+func (tt *MPIJobTrainer) isMPIJob(name, ns string, item v1alpha2.MPIJob) bool {
 	if val, ok := item.Labels["release"]; ok && (val == name) {
 		log.Debugf("the mpijob %s with labels %s", item.Name, val)
 	} else {
@@ -455,11 +455,11 @@ func (tt *MPIJobTrainer) ListTrainingJobs(namespace string, allNamespace bool) (
 
 func (mj *MPIJob) isSucceeded() bool {
 	// status.MPIJobLauncherStatusType
-	return mj.mpijob.Status.LauncherStatus == v1alpha1.LauncherSucceeded
+	return true//mj.mpijob.Status.LauncherStatus == v1alpha2.LauncherSucceeded
 }
 
 func (mj *MPIJob) isFailed() bool {
-	return mj.mpijob.Status.LauncherStatus == v1alpha1.LauncherFailed
+	return true//mj.mpijob.Status.LauncherStatus == v1alpha2.LauncherFailed
 }
 
 func (mj *MPIJob) isPending() bool {
@@ -480,11 +480,11 @@ func (mj *MPIJob) isPending() bool {
 // Get PriorityClass
 func (m *MPIJob) GetPriorityClass() string {
 	// return ""
-	return m.mpijob.Spec.Template.Spec.PriorityClassName
+	return m.mpijob.Spec.MPIReplicaSpecs["Launcher"].Template.Spec.PriorityClassName
 }
 
 // filter out all pods and chief pod (master pod) of mpijob from pods in current system
-func getPodsOfMPIJob(tt *MPIJobTrainer, mpijob *v1alpha1.MPIJob, podList []*v1.Pod) ([]*v1.Pod, *v1.Pod) {
+func getPodsOfMPIJob(tt *MPIJobTrainer, mpijob *v1alpha2.MPIJob, podList []*v1.Pod) ([]*v1.Pod, *v1.Pod) {
 	return getPodsOfTrainingJob(mpijob.Name, mpijob.Namespace, podList, tt.isMPIPod, func(pod *v1.Pod) bool {
 		return tt.isChiefPod(pod)
 	})
