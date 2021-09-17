@@ -55,3 +55,21 @@ arena get mpi-dist2 --type mpijob
 ```
 arena delete mpi-dist2
 ```
+
+
+### 高级用法
+
+提交读取minio上的样本的任务
+```
+
+arena submit mpi \
+  --name=mpi-dist3 \
+  --gpus=1 \
+  --workers=2 \
+  --image=172.19.1.16:5000/qqsun8819/mpi-operator:tensorflow-benchmarks2  \
+  --env=GIT_SYNC_BRANCH=master,S3_USE_HTTPS=0,S3_VERIFY_SSL=0,S3_ENDPOINT=http://10.43.4.158:9000,AWS_ACCESS_KEY_ID=49a1af5f-154b-426e-9059-cff696b408c4,AWS_SECRET_ACCESS_KEY=115aa465-a102-40bf-80bc-9b1026ccfce0 \
+  --sync-mode=git \
+  --sync-source=https://code.aliyun.com/qqsun8819/benchmarks.git \
+  "python code/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model resnet101 --batch_size 64 --variable_update horovod --train_dir=/training_logs --summary_verbosity=3 --save_summaries_steps=10
+
+```
